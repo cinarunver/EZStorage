@@ -89,3 +89,14 @@ net.minecraft.network.codec.ByteBufCodecs
 net.minecraft.network.codec.StreamCodec
 net.minecraft.core.UUIDUtil
 net.minecraft.client.gui.screens.inventory.MenuAccess
+
+# round 3 (client self test)
+?net/minecraft/client/Screenshot
+net.minecraft.client.Screenshot
+net.minecraft.client.server.IntegratedServer
+net.minecraft.client.gui.Gui
+net.minecraft.client.main.Main
+net.minecraft.client.player.LocalPlayer
+net.minecraft.server.players.PlayerList
+net.minecraft.client.gui.screens.TitleScreen
+net.minecraft.client.gui.screens.LevelLoadingScreen
