@@ -35,6 +35,17 @@ jobs:
           set -o pipefail
           ./gradlew build --no-configuration-cache --stacktrace 2>&1 | tee build.log
 
+      - name: In-game self test (dedicated server)
+        id: selftest
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          mkdir -p run/selftest
+          echo "eula=true" > run/selftest/eula.txt
+          ./gradlew runSelftest --no-configuration-cache 2>&1 | tee selftest.log
+          grep -q "\[EZSTORAGE-SELFTEST\] RESULT: PASSED" selftest.log
+
       # --- Porting helpers (fork's port branch only) ---------------------------------
       - name: Dump API signatures
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/port/')
@@ -46,10 +57,12 @@ jobs:
         run: |
           mkdir -p /tmp/out
           cp build.log /tmp/out/
+          cp selftest.log /tmp/out/ 2>/dev/null || true
+          grep -E "EZSTORAGE-SELFTEST|ERROR|Exception|Caused by" selftest.log > /tmp/out/selftest-summary.txt 2>/dev/null || true
           cp dump.log /tmp/out/ 2>/dev/null || true
           cp build/api-dump.txt /tmp/out/ 2>/dev/null || true
           grep -nE "error:|BUILD (SUCCESSFUL|FAILED)|What went wrong" build.log > /tmp/out/errors.txt || true
-          echo "${{ steps.build.outcome }} ${{ github.sha }}" > /tmp/out/status.txt
+          echo "${{ steps.build.outcome }} ${{ steps.selftest.outcome }} ${{ github.sha }}" > /tmp/out/status.txt
           cd /tmp/out
           git init -q
           git checkout -q -b ci-logs
@@ -67,6 +80,6 @@ jobs:
           name: ezstorage-jar
           path: build/libs/*.jar
 
-      - name: Fail if the build failed
-        if: steps.build.outcome == 'failure'
+      - name: Fail if the build or the self test failed
+        if: steps.build.outcome == 'failure' || steps.selftest.outcome == 'failure'
         run: exit 1
