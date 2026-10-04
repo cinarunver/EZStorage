@@ -62,6 +62,16 @@ jobs:
           xvfb-run -a -s "-screen 0 1280x800x24" ./gradlew runSelftestClient --no-configuration-cache 2>&1 | tee client.log
           grep -q "\[EZSTORAGE-CLIENTTEST\] RESULT: PASSED" client.log
 
+      - name: Report self test results
+        if: always() && steps.build.outcome == 'success'
+        run: |
+          for f in selftest.log client.log; do
+            [ -f "$f" ] || continue
+            grep -oE "\[EZSTORAGE-(SELF|CLIENT)TEST\] FAIL .*" "$f" | head -20 | sed 's/^/::error title=Self test::/' || true
+            grep -oE "\[EZSTORAGE-(SELF|CLIENT)TEST\] RESULT: .*" "$f" | sed 's/^/::notice title=Self test::/' || true
+            echo "::notice title=Self test checks::$f: $(grep -c 'TEST\] PASS' "$f") passed, $(grep -c 'TEST\] FAIL' "$f") failed"
+          done
+
       - name: Upload test logs and screenshots
         if: always() && steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4

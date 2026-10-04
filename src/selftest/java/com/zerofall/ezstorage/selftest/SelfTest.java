@@ -40,6 +40,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -65,15 +66,42 @@ public final class SelfTest {
         MinecraftServer server = event.getServer();
         try {
             run(server);
+            AutomationTest.setUp(server.overworld());
+            ticksLeft = AutomationTest.TICKS;
         } catch (Throwable t) {
             fail("unexpected exception", t.toString());
             EZStorage.LOG.error(TAG + "exception", t);
+            finish(server);
         }
+    }
+
+    private static int ticksLeft = -1;
+
+    /** Lets hoppers run for a while before checking what they moved. */
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        if (ticksLeft < 0) {
+            return;
+        }
+        if (--ticksLeft == 0) {
+            ticksLeft = -1;
+            try {
+                AutomationTest.verify(event.getServer()
+                    .overworld());
+            } catch (Throwable t) {
+                fail("unexpected exception", t.toString());
+                EZStorage.LOG.error(TAG + "exception", t);
+            }
+            finish(event.getServer());
+        }
+    }
+
+    private static void finish(MinecraftServer server) {
         EZStorage.LOG.info(TAG + "RESULT: " + (failures.isEmpty() ? "PASSED" : "FAILED " + failures));
         server.halt(false);
     }
 
-    private static void check(String name, boolean ok, String detail) {
+    static void check(String name, boolean ok, String detail) {
         if (ok) {
             EZStorage.LOG.info(TAG + "PASS " + name);
         } else {
@@ -81,7 +109,7 @@ public final class SelfTest {
         }
     }
 
-    private static void fail(String name, String detail) {
+    static void fail(String name, String detail) {
         failures.add(name);
         EZStorage.LOG.error(TAG + "FAIL " + name + ": " + detail);
     }
