@@ -88,6 +88,7 @@ public final class StorageInventory {
     private Map<ItemResource, Integer> indexCache;
     private long capacity;
     private long totalCountCache = -1;
+    private int version;
     private final NonNullList<ItemStack> craftGrid = NonNullList.withSize(9, ItemStack.EMPTY);
     private Runnable changeListener = () -> {};
     private final List<Runnable> gridListeners = new ArrayList<>();
@@ -296,6 +297,7 @@ public final class StorageInventory {
         entries = new ArrayList<>(snapshot);
         indexCache = null;
         totalCountCache = -1;
+        version++;
     }
 
     /** Called once a transaction touching this inventory was committed. */
@@ -348,7 +350,13 @@ public final class StorageInventory {
 
     private void changed() {
         totalCountCache = -1;
+        version++;
         changeListener.run();
+    }
+
+    /** Increments on every content change; lets views know when they are stale. */
+    public int getVersion() {
+        return version;
     }
 
     /** A detached copy of entries and capacity, safe to hand to the network layer or another thread. */

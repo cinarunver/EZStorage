@@ -8,6 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.phys.AABB;
+import com.zerofall.ezstorage.registry.ModItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -91,6 +96,35 @@ final class AutomationTest {
         SelfTest.check("legacy extract", fromLegacy.is(Items.BRICK) && fromLegacy.getCount() == 10,
             "extracted " + fromLegacy);
 
+        // Vanilla container view, as used by blocks that don't query the capability
+        SelfTest.check("proxy is a vanilla container", level.getBlockEntity(PROXY) instanceof WorldlyContainer, "not a container");
+        Container container = HopperBlockEntity.getContainerAt(level, PROXY);
+        SelfTest.check("HopperBlockEntity.getContainerAt finds proxy", container != null, "null");
+        if (container != null) {
+            ItemStack restAdd = HopperBlockEntity.addItem(null, container, new ItemStack(Items.ANDESITE, 100), Direction.DOWN);
+            SelfTest.check("container addItem new type", restAdd.isEmpty() && inventory.getAmount(ItemResource.of(Items.ANDESITE)) == 100,
+                "rest " + restAdd + " stored " + inventory.getAmount(ItemResource.of(Items.ANDESITE)));
+            HopperBlockEntity.addItem(null, container, new ItemStack(Items.GRAVEL, 5), Direction.DOWN);
+            restAdd = HopperBlockEntity.addItem(null, container, new ItemStack(Items.GRAVEL, 4), Direction.DOWN);
+            SelfTest.check("container addItem merges into a small stack", restAdd.isEmpty()
+                && inventory.getAmount(ItemResource.of(Items.GRAVEL)) == 9, "stored " + inventory.getAmount(ItemResource.of(Items.GRAVEL)));
+            int gravelSlot = -1;
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                if (container.getItem(i)
+                    .is(Items.GRAVEL)) {
+                    gravelSlot = i;
+                }
+            }
+            ItemStack removed = gravelSlot < 0 ? ItemStack.EMPTY : container.removeItem(gravelSlot, 2);
+            SelfTest.check("container removeItem", removed.getCount() == 2 && inventory.getAmount(ItemResource.of(Items.GRAVEL)) == 7,
+                "removed " + removed + " stored " + inventory.getAmount(ItemResource.of(Items.GRAVEL)));
+            ItemStack live = container.getItem(gravelSlot);
+            live.shrink(1);
+            container.setItem(gravelSlot, live);
+            SelfTest.check("container mutate-and-set-back applied once", inventory.getAmount(ItemResource.of(Items.GRAVEL)) == 6,
+                "stored " + inventory.getAmount(ItemResource.of(Items.GRAVEL)));
+        }
+
         // Real hoppers: one pushing into the proxy, one pulling from it
         level.setBlock(PUSH_HOPPER, Blocks.HOPPER.defaultBlockState(), Block.UPDATE_ALL);
         ((Container) level.getBlockEntity(PUSH_HOPPER)).setItem(0, new ItemStack(Items.COBBLESTONE, 10));
@@ -113,6 +147,20 @@ final class AutomationTest {
         SelfTest.check("hopper pulls from proxy", pulled > 0, "pulled nothing");
         long cobble = inventory.getAmount(ItemResource.of(Items.COBBLESTONE)) + pull.countItem(Items.COBBLESTONE);
         SelfTest.check("hopper transfer conserves items", cobble == 10, "cobblestone total " + cobble);
+
+        // Breaking the proxy must not drop (duplicate) the storage content it mirrors
+        long totalBefore = inventory.getTotalCount();
+        level.destroyBlock(PROXY, true);
+        int dropped = 0;
+        for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, new AABB(PROXY).inflate(3))) {
+            if (!item.getItem()
+                .is(ModItems.INVENTORY_PROXY.get())) {
+                dropped += item.getItem()
+                    .getCount();
+            }
+        }
+        SelfTest.check("breaking proxy drops no storage items", dropped == 0 && inventory.getTotalCount() == totalBefore,
+            "dropped " + dropped + ", storage " + totalBefore + " -> " + inventory.getTotalCount());
     }
 
     /** The classic ItemHandlerHelper.insertItemStacked algorithm that many mods still carry around. */
