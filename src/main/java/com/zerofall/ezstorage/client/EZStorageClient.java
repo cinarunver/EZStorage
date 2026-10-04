@@ -40,7 +40,7 @@ public class EZStorageClient {
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenus.STORAGE.get(), StorageCoreScreen<StorageCoreMenu>::new);
+        event.<StorageCoreMenu, StorageCoreScreen<StorageCoreMenu>>register(ModMenus.STORAGE.get(), StorageCoreScreen::new);
         event.register(ModMenus.STORAGE_CRAFTING.get(), StorageCraftingScreen::new);
     }
 
@@ -80,7 +80,7 @@ public class EZStorageClient {
             ClientPacketDistributor.sendToServer(OpenPanelPayload.INSTANCE);
         }
         while (ClientKeys.PICK_BLOCK.consumeClick()) {
-            if (minecraft.screen != null || minecraft.hitResult == null
+            if (minecraft.gui.screen() != null || minecraft.hitResult == null
                 || minecraft.hitResult.getType() != HitResult.Type.BLOCK) {
                 continue;
             }

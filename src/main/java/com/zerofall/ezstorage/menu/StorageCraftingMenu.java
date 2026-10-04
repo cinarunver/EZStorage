@@ -43,7 +43,8 @@ public class StorageCraftingMenu extends StorageCoreMenu {
         super(ModMenus.STORAGE_CRAFTING.get(), containerId, playerInventory, inventory, validator);
         this.grid = new SharedCraftingGrid(inventory.getCraftGrid(), inventory::onGridChanged);
 
-        resultSlot = addSlot(new ResultSlot(player, grid, result, 0, 116, 132));
+        resultSlot = new ResultSlot(player, grid, result, 0, 116, 132);
+        addSlot(resultSlot);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
                 addSlot(new Slot(grid, col + row * 3, 44 + col * 18, 114 + row * 18));
