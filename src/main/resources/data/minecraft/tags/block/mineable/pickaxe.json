@@ -1,0 +1,8 @@
+{
+  "values": [
+    "ezstorage:condensed_storage_box",
+    "ezstorage:hyper_storage_box",
+    "ezstorage:inventory_proxy",
+    "ezstorage:crafting_box"
+  ]
+}

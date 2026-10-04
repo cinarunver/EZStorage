@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ACA",
+    "EBE",
+    "ACA"
+  ],
+  "key": {
+    "A": "#c:storage_blocks/iron",
+    "B": "ezstorage:storage_box",
+    "C": "#c:ingots/gold",
+    "E": "#c:chests/wooden"
+  },
+  "result": {
+    "id": "ezstorage:condensed_storage_box"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "values": [
+    "ezstorage:storage_core",
+    "ezstorage:storage_box"
+  ]
+}

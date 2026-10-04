@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "ezstorage:block/hyper_storage_box"
+    }
+  }
+}

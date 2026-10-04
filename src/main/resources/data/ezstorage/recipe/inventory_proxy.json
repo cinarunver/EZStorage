@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A",
+    "B",
+    "C"
+  ],
+  "key": {
+    "A": "minecraft:hopper",
+    "B": "minecraft:piston",
+    "C": "minecraft:quartz_block"
+  },
+  "result": {
+    "id": "ezstorage:inventory_proxy"
+  }
+}

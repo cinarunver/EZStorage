@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "key": {
+    "A": "#minecraft:logs",
+    "B": "#c:rods/wooden",
+    "C": "#c:chests/wooden"
+  },
+  "result": {
+    "id": "ezstorage:storage_core"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "DBD"
+  ],
+  "key": {
+    "A": "minecraft:redstone_torch",
+    "B": "#minecraft:wooden_slabs",
+    "C": "ezstorage:storage_core",
+    "D": "#c:ingots/gold"
+  },
+  "result": {
+    "id": "ezstorage:portable_storage_panel"
+  }
+}

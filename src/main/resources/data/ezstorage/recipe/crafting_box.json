@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "A",
+    "B",
+    "C"
+  ],
+  "key": {
+    "A": "#c:ender_pearls",
+    "B": "minecraft:crafting_table",
+    "C": "#c:gems/diamond"
+  },
+  "result": {
+    "id": "ezstorage:crafting_box"
+  }
+}

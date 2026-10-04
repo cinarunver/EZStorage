@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "ezstorage:block/crafting_box"
+    }
+  }
+}

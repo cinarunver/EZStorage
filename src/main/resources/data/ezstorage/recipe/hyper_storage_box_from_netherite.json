@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "key": {
+    "A": "#c:storage_blocks/netherite",
+    "B": "minecraft:obsidian",
+    "C": "ezstorage:condensed_storage_box"
+  },
+  "result": {
+    "id": "ezstorage:hyper_storage_box"
+  }
+}
