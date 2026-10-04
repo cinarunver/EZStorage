@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
 
 import com.zerofall.ezstorage.EZStorage;
@@ -51,6 +52,7 @@ public class StorageCoreScreen<M extends StorageCoreMenu> extends AbstractContai
     protected static final int CELL = 18;
     protected static final int SCROLLBAR_X = 175;
     private static final int TEXT_COLOR = 0xFF404040;
+    private static final float COUNT_SCALE = 0.5F;
 
     private static final int BUTTON_SIZE = 16;
     private static final int BUTTON_STRIDE = 20;
@@ -358,12 +360,24 @@ public class StorageCoreScreen<M extends StorageCoreMenu> extends AbstractContai
                 int y = GRID_Y + row * CELL;
                 ItemStack stack = visibleItems.get(index);
                 graphics.item(stack, x, y);
-                graphics.itemDecorations(font, stack, x, y, ReadableNumberConverter.slim(visibleCounts.get(index)));
+                graphics.itemDecorations(font, stack, x, y, "");
+                extractCount(graphics, x, y, visibleCounts.get(index));
                 if (index == hovered) {
                     graphics.fill(x, y, x + 16, y + 16, 0x80FFFFFF);
                 }
             }
         }
+    }
+
+    /** Half-size count in the bottom right corner of a cell, like the 1.7.10 version. */
+    private void extractCount(GuiGraphicsExtractor graphics, int x, int y, long count) {
+        String text = ReadableNumberConverter.wide(count);
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(x + 16.0F - font.width(text) * COUNT_SCALE, y + 16.0F - 7.0F * COUNT_SCALE);
+        pose.scale(COUNT_SCALE, COUNT_SCALE);
+        graphics.text(font, text, 0, 0, 0xFFFFFFFF, true);
+        pose.popMatrix();
     }
 
     private int sideButtonX() {

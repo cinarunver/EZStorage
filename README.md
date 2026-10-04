@@ -1,6 +1,8 @@
 # Simple Storage
 
-Simple storage mod for Minecraft 1.7.10 (Forge).
+Simple storage mod for Minecraft 26.2 (NeoForge).
+
+> This branch is a port of the 1.7.10 (Forge/GTNH) version. See [PORTING.md](PORTING.md) for what changed.
 
 ## Description
 
@@ -25,26 +27,18 @@ Simple Storage (former EZStorage) introduces an early-game storage system that s
   - This adds a crafting grid to the GUI of your Storage Core (compatible with NEI + clicking for easy crafting from the internal inventory)
 - **Portable Storage Panel**
   - This adds a small item that features a wood panel with wireless access to your storage core. It's tier can be upgraded and a crafting grid can also be added.
-  - Upgrade by putting in crafting grid together with one redstone block and the upgrade item (ender eye, ender pearl, nether star, crafting box)
+  - Upgrade by putting in crafting grid together with one redstone block and the upgrade item (ender pearl, ender eye, nether star, crafting box)
   - No need for chunkloading the target storage core, it works without!
+  - Keybinds (unbound by default) open the storage of a panel in your inventory or pick the looked-at block from it
 
 ## Mod Integration
 
-- **Not Enough Items** (GTNH version)
-  - Overlay recipes
-  - One-click crafting
-  - NEI-like search
-- **Waila**
-  - Advanced tooltip overlay
-  - Show storage content (items/types count) in world tooltip
-- **JABBA**
-  - Move the storage core from one place to another place using the dolly from Jabba
-- **Crafting Tweaks**
-  - Show typical crafting tweaks buttons on crafting grid
-- **Et Futurum Requiem**
-  - Spectator mode
-- **Applied Energistics 2**
-  - Inventory proxy can be used with AE storage buses
+- **JEI**
+  - Recipe transfer ("+") into the crafting grid, taking items from storage first
+  - Recipe/usage lookup (R/U) on stored items
+  - Optional search box synchronisation
+- **Automation**
+  - The Inventory Proxy exposes the storage through NeoForge's item capability, so hoppers, pipes and storage buses can use it
 
 ## Remarks
 
@@ -70,4 +64,5 @@ This fork becomes some changes to be usable on servers, less-buggy and a lot of 
 
 ## Development
 
-With vscode you need to run `gradlew eclipse` for the project to correctly recognize the class paths
+Requires Java 25. `./gradlew build` builds the mod, `./gradlew runClient` starts a dev client (with JEI).
+`./gradlew runSelftest` and `./gradlew runSelftestClient` run the in-game self tests that CI uses.
