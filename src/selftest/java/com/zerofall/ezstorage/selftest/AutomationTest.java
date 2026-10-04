@@ -41,6 +41,8 @@ final class AutomationTest {
     }
 
     static void setUp(ServerLevel level) {
+        // Block entities only tick in ticking chunks; there is no player around, so force-load the test area.
+        level.setChunkForced(CORE.getX() >> 4, CORE.getZ() >> 4, true);
         level.getChunk(CORE);
         level.setBlock(CORE, ModBlocks.STORAGE_CORE.get()
             .defaultBlockState(), Block.UPDATE_ALL);
@@ -97,6 +99,8 @@ final class AutomationTest {
     }
 
     static void verify(ServerLevel level) {
+        SelfTest.check("test chunk is ticking", level.isPositionEntityTicking(PROXY) || level.shouldTickBlocksAt(PROXY),
+            "chunk not ticking");
         Container push = (Container) level.getBlockEntity(PUSH_HOPPER);
         Container pull = (Container) level.getBlockEntity(PULL_HOPPER);
         SelfTest.check("hopper pushes into proxy", push.countItem(Items.COBBLESTONE) == 0,
