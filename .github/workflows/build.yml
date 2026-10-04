@@ -46,6 +46,22 @@ jobs:
           ./gradlew runSelftest --no-configuration-cache 2>&1 | tee selftest.log
           grep -q "\[EZSTORAGE-SELFTEST\] RESULT: PASSED" selftest.log
 
+      - name: In-game client self test (virtual display)
+        id: clienttest
+        if: steps.selftest.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 20
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri mesa-vulkan-drivers > /dev/null
+          mkdir -p run/selftest-client/saves
+          cp -r run/selftest/world run/selftest-client/saves/selftest
+          printf '%s\n' onboardAccessibility:false pauseOnLostFocus:false skipMultiplayerWarning:true \
+            joinedFirstServer:true tutorialStep:none guiScale:3 narrator:0 renderDistance:4 \
+            simulationDistance:5 soundCategory_master:0.0 > run/selftest-client/options.txt
+          xvfb-run -a -s "-screen 0 1280x800x24" ./gradlew runSelftestClient --no-configuration-cache 2>&1 | tee client.log
+          grep -q "\[EZSTORAGE-CLIENTTEST\] RESULT: PASSED" client.log
+
       # --- Porting helpers (fork's port branch only) ---------------------------------
       - name: Dump API signatures
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/port/')
@@ -58,11 +74,14 @@ jobs:
           mkdir -p /tmp/out
           cp build.log /tmp/out/
           cp selftest.log /tmp/out/ 2>/dev/null || true
+          cp client.log /tmp/out/ 2>/dev/null || true
+          grep -E "EZSTORAGE-CLIENTTEST|/ERROR\]|Exception|Caused by" client.log > /tmp/out/client-summary.txt 2>/dev/null || true
+          mkdir -p /tmp/out/screenshots && cp run/selftest-client/screenshots/*.png /tmp/out/screenshots/ 2>/dev/null || true
           grep -E "EZSTORAGE-SELFTEST|ERROR|Exception|Caused by" selftest.log > /tmp/out/selftest-summary.txt 2>/dev/null || true
           cp dump.log /tmp/out/ 2>/dev/null || true
           cp build/api-dump.txt /tmp/out/ 2>/dev/null || true
           grep -nE "error:|BUILD (SUCCESSFUL|FAILED)|What went wrong" build.log > /tmp/out/errors.txt || true
-          echo "${{ steps.build.outcome }} ${{ steps.selftest.outcome }} ${{ github.sha }}" > /tmp/out/status.txt
+          echo "${{ steps.build.outcome }} ${{ steps.selftest.outcome }} ${{ steps.clienttest.outcome }} ${{ github.sha }}" > /tmp/out/status.txt
           cd /tmp/out
           git init -q
           git checkout -q -b ci-logs

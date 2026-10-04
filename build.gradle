@@ -51,6 +51,13 @@ neoForge {
             gameDirectory = project.file('run/selftest')
             systemProperty 'ezstorage.selftest', 'true'
         }
+        selftestClient {
+            client()
+            sourceSet = sourceSets.selftest
+            gameDirectory = project.file('run/selftest-client')
+            systemProperty 'ezstorage.selftest.client', 'true'
+            programArguments.addAll '--quickPlaySingleplayer', 'selftest', '--width', '1280', '--height', '800'
+        }
         configureEach {
             logLevel = org.slf4j.event.Level.INFO
         }
