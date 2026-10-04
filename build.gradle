@@ -119,4 +119,3 @@ idea {
     }
 }
 
-apply from: 'ci/api-dump.gradle'
