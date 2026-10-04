@@ -26,7 +26,10 @@ repositories {
     maven {
         name = 'BlameJared (JEI)'
         url = 'https://maven.blamejared.com/'
-        content { includeGroup 'mezz.jei' }
+        content {
+            includeGroup 'mezz.jei'
+            includeGroupByRegex 'net\\.mezzdev\\..*'
+        }
     }
 }
 
